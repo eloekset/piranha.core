@@ -15,6 +15,15 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: UseGitVersion@5
+  displayName: 'UseGitVersion (preview)'
+  inputs:
+    versionSpec: '8.4'
+    includePrerelease: true
+    updateAssemblyInfo: false
+  env:
+      BUILD_BUILDNUMBER: $(GitVersion.NuGetVersionV2)
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -38,7 +47,7 @@ steps:
   displayName: 'Build'
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    msbuildArgs: '/p:Version="$(build.buildNumber)" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
@@ -56,6 +65,15 @@ steps:
 #    targetType: 'inline'
 #    script: |
 #      .\tools\coveralls.net.0.7.0\tools\csmacnz.coveralls.exe --opencover -i .\test\Piranha.Tests\coverage.opencover.xml --repoToken $env:COVERALLS_REPO_TOKEN --useRelativePaths --commitId $(Build.SourceVersion) --commitBranch $(Build.SourceBranch) --commitAuthor $(Build.RequestedFor) --commitEmail $(Build.RequestedForEmail) --commitMessage $(Build.Reason) --jobId $(Build.BuildNumber) --serviceName AzurePipelines
+
+- task: DotNetCoreCLI@2
+  displayName: 'Generate NuGet packages'
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/*.csproj;!**/*Tests.csproj'
+    nobuild: true
+    includesymbols: true
+    versioningScheme: 'byBuildNumber'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish build artifacts'
