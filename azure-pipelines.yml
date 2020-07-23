@@ -49,9 +49,17 @@ steps:
     projects: '$(solution)'
     arguments: '/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute="NoCoverage"'
 
-- task: PowerShell@2
-  displayName: 'Test coverage'
+# Skip CoverAlls
+#- task: PowerShell@2
+#  displayName: 'Test coverage'
+#  inputs:
+#    targetType: 'inline'
+#    script: |
+#      .\tools\coveralls.net.0.7.0\tools\csmacnz.coveralls.exe --opencover -i .\test\Piranha.Tests\coverage.opencover.xml --repoToken $env:COVERALLS_REPO_TOKEN --useRelativePaths --commitId $(Build.SourceVersion) --commitBranch $(Build.SourceBranch) --commitAuthor $(Build.RequestedFor) --commitEmail $(Build.RequestedForEmail) --commitMessage $(Build.Reason) --jobId $(Build.BuildNumber) --serviceName AzurePipelines
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish build artifacts'
   inputs:
-    targetType: 'inline'
-    script: |
-      .\tools\coveralls.net.0.7.0\tools\csmacnz.coveralls.exe --opencover -i .\test\Piranha.Tests\coverage.opencover.xml --repoToken $env:COVERALLS_REPO_TOKEN --useRelativePaths --commitId $(Build.SourceVersion) --commitBranch $(Build.SourceBranch) --commitAuthor $(Build.RequestedFor) --commitEmail $(Build.RequestedForEmail) --commitMessage $(Build.Reason) --jobId $(Build.BuildNumber) --serviceName AzurePipelines
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
