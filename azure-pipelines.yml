@@ -10,7 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/Piranha.sln'
+  solution: '$(Build.SourcesDirectory)\Piranha.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
