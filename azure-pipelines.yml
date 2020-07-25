@@ -70,7 +70,7 @@ steps:
 - task: CmdLine@2
   displayName: 'Generate NuGet packages'
   inputs:
-    script: 'dotnet pack $(solution) --output $(Build.ArtifactStagingDirectory) --include-symbols -p:Configuration=$(buildConfiguration) -p:Version=$(build.buildNumber) --verbosity Information'
+    script: 'dotnet pack $(solution) --output $(Build.ArtifactStagingDirectory) --include-symbols -p:Configuration=$(buildConfiguration) -p:Version=$(build.buildNumber) --verbosity normal'
 
 #- task: DotNetCoreCLI@2
 #  displayName: 'Generate NuGet packages'
