@@ -70,7 +70,7 @@ steps:
   displayName: 'Generate NuGet packages'
   inputs:
     command: 'pack'
-    packagesToPack: '**/*.csproj;!**/*Tests.csproj'
+    packagesToPack: '**/Piranha*.csproj;!**/*Tests.csproj'
     nobuild: true
     includesymbols: true
     versioningScheme: 'byBuildNumber'
