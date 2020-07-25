@@ -51,12 +51,13 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Test'
-  inputs:
-    command: 'test'
-    projects: '$(solution)'
-    arguments: '/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute="NoCoverage"'
+# skip tests because they are very time consuming
+#- task: DotNetCoreCLI@2
+#  displayName: 'Test'
+#  inputs:
+#    command: 'test'
+#    projects: '$(solution)'
+#    arguments: '/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute="NoCoverage"'
 
 # Skip CoverAlls
 #- task: PowerShell@2
