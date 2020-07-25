@@ -66,14 +66,19 @@ steps:
 #    script: |
 #      .\tools\coveralls.net.0.7.0\tools\csmacnz.coveralls.exe --opencover -i .\test\Piranha.Tests\coverage.opencover.xml --repoToken $env:COVERALLS_REPO_TOKEN --useRelativePaths --commitId $(Build.SourceVersion) --commitBranch $(Build.SourceBranch) --commitAuthor $(Build.RequestedFor) --commitEmail $(Build.RequestedForEmail) --commitMessage $(Build.Reason) --jobId $(Build.BuildNumber) --serviceName AzurePipelines
 
-- task: DotNetCoreCLI@2
+- task: CmdLine@2
   displayName: 'Generate NuGet packages'
   inputs:
-    command: 'pack'
-    packagesToPack: '**/Piranha*.csproj;!**/*Tests.csproj'
-    nobuild: true
-    includesymbols: true
-    versioningScheme: 'byBuildNumber'
+    script: 'dotnet pack $(solution) --output $(Build.ArtifactStagingDirectory) --include-symbols -p:Configuration=$(buildConfiguration) -p:Version=$(build.buildNumber) --verbosity Information'
+
+#- task: DotNetCoreCLI@2
+#  displayName: 'Generate NuGet packages'
+#  inputs:
+#    command: 'pack'
+#    packagesToPack: '**/Piranha*.csproj;!**/*Tests.csproj'
+#    nobuild: true
+#    includesymbols: true
+#    versioningScheme: 'byBuildNumber'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish build artifacts'
