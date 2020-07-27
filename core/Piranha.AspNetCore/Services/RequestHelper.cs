@@ -22,6 +22,11 @@ namespace Piranha.AspNetCore.Services
         public string Host { get; set; }
 
         /// <summary>
+        /// Gets/sets the current PathBase, which represents an URI segment for a IIS or Azure App Service Virtual Directory.
+        /// </summary>
+        public string PathBase { get; set; }
+
+        /// <summary>
         /// Gets/sets the current port.
         /// </summary>
         public int? Port { get; set; }

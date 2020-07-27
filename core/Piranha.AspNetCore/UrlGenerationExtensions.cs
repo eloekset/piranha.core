@@ -295,18 +295,25 @@ public static class UrlGenerationExtensions
             slug = slug.Replace("~/", "/");
         }
 
-        // Fix slug that doesn't start with /
-        if (!slug.StartsWith("/"))
+        // Fix slug so it doesn't start with /
+        if (slug.StartsWith("/"))
         {
-            slug = $"/{ slug }";
+            slug = slug.Substring(1, slug.Length - 1);
         }
 
+        StringBuilder baseUrl = new StringBuilder();
+
+        // Append PathBase for IIS or Azure App Service Virtual Directory
+        if (!string.IsNullOrEmpty(app.Request.PathBase)) baseUrl.Append(app.Request.PathBase);
+        
+        baseUrl.Append(@"/");
+
         // Append site prefix, if available
-        if (!string.IsNullOrEmpty(app.Site.SitePrefix))
-        {
-            slug = $"/{ app.Site.SitePrefix }{ slug }";
-        }
-        return slug;
+        if (!string.IsNullOrEmpty(app.Site.SitePrefix)) baseUrl.Append(app.Site.SitePrefix);
+
+        if (!baseUrl.ToString().EndsWith(@"/")) baseUrl.Append(@"/");
+        
+        return $"{baseUrl}{slug}";
     }
 
     /// <summary>
@@ -338,6 +345,7 @@ public static class UrlGenerationExtensions
             sb.Append(":");
             sb.Append(app.Request.Port.ToString());
         }
+        if (!string.IsNullOrEmpty(app.Request.PathBase)) sb.Append(app.Request.PathBase);
         return sb.ToString();
     }
 }
