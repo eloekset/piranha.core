@@ -47,7 +47,7 @@ steps:
   displayName: 'Build'
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:Version="$(build.buildNumber)" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    msbuildArgs: '/p:Version="$(build.buildNumber)" /p:DebugSymbols=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
@@ -66,6 +66,11 @@ steps:
 #    targetType: 'inline'
 #    script: |
 #      .\tools\coveralls.net.0.7.0\tools\csmacnz.coveralls.exe --opencover -i .\test\Piranha.Tests\coverage.opencover.xml --repoToken $env:COVERALLS_REPO_TOKEN --useRelativePaths --commitId $(Build.SourceVersion) --commitBranch $(Build.SourceBranch) --commitAuthor $(Build.RequestedFor) --commitEmail $(Build.RequestedForEmail) --commitMessage $(Build.Reason) --jobId $(Build.BuildNumber) --serviceName AzurePipelines
+
+- task: PublishSymbols@2
+  inputs:
+    SearchPattern: '**/bin/**/*.pdb'
+    SymbolServerType: 'TeamServices'
 
 - task: CmdLine@2
   displayName: 'Generate NuGet packages'
