@@ -44,18 +44,10 @@ namespace Piranha.AspNetCore
         public override async Task Invoke(HttpContext context, IApi api, IApplicationService service)
         {
             var useSitemapRouting = _config != null ? _config.UseSitemapRouting : true;
-            service.Request.Host = context.Request.Host.Host;
-            service.Request.Scheme = context.Request.Scheme;
-            service.Request.PathBase = context.Request.PathBase;
-            service.Request.Port = context.Request.Host.Port;
-            service.Request.Url = context.Request.Path.HasValue ? context.Request.Path.Value : "";
 
             if (useSitemapRouting && !IsHandled(context) && !context.Request.Path.Value.StartsWith("/manager/assets/"))
             {
-                var prefix = service.Site.SitePrefix != null ?
-                    $"/{ service.Site.SitePrefix }" : "";
-                var baseUrl = service.Request.Scheme + "://" + service.Request.Host + (service.Request.Port.HasValue ? $":{service.Request.Port}" : "") + service.Request.PathBase + prefix;
-                
+                var baseUrl = service.AbsoluteUrl("/");
 
                 if (service.Request.Url.ToLower() == "/sitemap.xml")
                 {

@@ -47,23 +47,23 @@ namespace Piranha.AspNetCore
         {
             var appConfig = new Config(api);
 
+            //
+            // 1: Store raw url & request information
+            //
+#pragma warning disable
+            // OBSOLETE: service.Url
+            service.Request.Url = service.Url = context.Request.Path.Value;
+#pragma warning enable
+            service.Request.Host = context.Request.Host.Host;
+            service.Request.PathBase = context.Request.PathBase;
+            service.Request.Port = context.Request.Host.Port;
+            service.Request.Scheme = context.Request.Scheme;
+
             if (!IsHandled(context) && !context.Request.Path.Value.StartsWith("/manager/assets/"))
             {
                 var url = context.Request.Path.HasValue ? context.Request.Path.Value : "";
                 var segments = !string.IsNullOrEmpty(url) ? url.Substring(1).Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries) : new string[] { };
                 int pos = 0;
-
-                //
-                // 1: Store raw url & request information
-                //
-                #pragma warning disable
-                // OBSOLETE: service.Url
-                service.Request.Url = service.Url = context.Request.Path.Value;
-                #pragma warning enable
-                service.Request.Host = context.Request.Host.Host;
-                service.Request.PathBase = context.Request.PathBase;
-                service.Request.Port = context.Request.Host.Port;
-                service.Request.Scheme = context.Request.Scheme;
 
                 //
                 // 2: Get the current site
