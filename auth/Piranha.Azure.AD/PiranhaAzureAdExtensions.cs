@@ -8,6 +8,9 @@
  *
  */
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
 using Piranha;
 using Piranha.Azure.AD;
@@ -21,10 +24,9 @@ public static class PiranhaSearchExtensions
     /// <param name="serviceName">The unique name of the azure search service</param>
     /// <param name="apiKey">The admin api key</param>
     /// <returns>The services</returns>
-    public static PiranhaServiceBuilder UseAzureAD(this PiranhaServiceBuilder serviceBuilder,
-        string tenantId, string clientId, string clientSecret, string redirectUri)
+    public static PiranhaServiceBuilder UseAzureAD(this PiranhaServiceBuilder serviceBuilder, System.Action<AzureADOptions> azureADOptions, System.Action<OpenIdConnectOptions> openIdConnectOptions)
     {
-        serviceBuilder.Services.AddPiranhaAzureAD(tenantId, clientId, clientSecret, redirectUri);
+        serviceBuilder.Services.AddPiranhaAzureAD(azureADOptions, openIdConnectOptions);
 
         return serviceBuilder;
     }
@@ -37,21 +39,14 @@ public static class PiranhaSearchExtensions
     /// <param name="clientId">The application ID registered in Azure AD</param>
     /// <param name="redirectUri">The redirect URI to handle authentication callback</param>
     /// <returns>The services</returns>
-    public static IServiceCollection AddPiranhaAzureAD(this IServiceCollection services,
-        string tenantId, string clientId, string clientSecret, string redirectUri)
+    public static IServiceCollection AddPiranhaAzureAD(this IServiceCollection services, System.Action<AzureADOptions> azureADOptions, System.Action<OpenIdConnectOptions> openIdConnectOptions)
     {
         // Add the identity module
         App.Modules.Register<Module>();
-
         // Register the auth service
-        services.AddAuthentication()
-            .AddOAuth("Cookie", options =>
-            {
-                options.AuthorizationEndpoint = $"https://login.microsoftonline.com/{tenantId}";
-                options.ClientId = clientId;
-                options.ClientSecret = clientSecret;
-                options.CallbackPath = redirectUri;
-            });
+        services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
+            .AddAzureAD(azureADOptions);
+        services.Configure<OpenIdConnectOptions>(AzureADDefaults.OpenIdScheme, openIdConnectOptions);
 
         return services;
     }
