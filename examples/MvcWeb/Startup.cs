@@ -17,11 +17,20 @@ using Piranha;
 using Piranha.Data.EF.SQLite;
 using Piranha.AspNetCore.Identity.SQLite;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 
 namespace MvcWeb
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -41,36 +50,30 @@ namespace MvcWeb
             services.AddPiranhaTinyMCE();
             services.AddPiranhaApi();
 
-            services.AddPiranhaAzureAD(azureADOptions =>
-            {
-                azureADOptions.Instance = @"https://login.microsoftonline.com/";
-                azureADOptions.Domain = "[Enter the domain of your tenant, e.g. contoso.onmicrosoft.com]";
-                azureADOptions.TenantId = "common";
-                azureADOptions.ClientId = "Enter_the_Application_Id_here";
-                azureADOptions.ClientSecret = "Enter_the_Client_Secret_here";
-                azureADOptions.CallbackPath = @"/signin-iodc";
-            }, openIdConnectOptions =>
-            {
-                openIdConnectOptions.Authority = openIdConnectOptions.Authority + "/v2.0/";
+            services.AddPiranhaAzureAD(
+                options => _configuration.Bind("AzureAD"),
+                openIdConnectOptions =>
+                {
+                    openIdConnectOptions.Authority = openIdConnectOptions.Authority + "/v2.0/";
 
-                // Per the code below, this application signs in users in any Work and School
-                // accounts and any Microsoft Personal Accounts.
-                // If you want to direct Azure AD to restrict the users that can sign-in, change 
-                // the tenant value of the appsettings.json file in the following way:
-                // - only Work and School accounts => 'organizations'
-                // - only Microsoft Personal accounts => 'consumers'
-                // - Work and School and Personal accounts => 'common'
+                    // Per the code below, this application signs in users in any Work and School
+                    // accounts and any Microsoft Personal Accounts.
+                    // If you want to direct Azure AD to restrict the users that can sign-in, change 
+                    // the tenant value of the appsettings.json file in the following way:
+                    // - only Work and School accounts => 'organizations'
+                    // - only Microsoft Personal accounts => 'consumers'
+                    // - Work and School and Personal accounts => 'common'
 
-                // If you want to restrict the users that can sign-in to only one tenant
-                // set the tenant value in the appsettings.json file to the tenant ID of this
-                // organization, and set ValidateIssuer below to true.
+                    // If you want to restrict the users that can sign-in to only one tenant
+                    // set the tenant value in the appsettings.json file to the tenant ID of this
+                    // organization, and set ValidateIssuer below to true.
 
-                // If you want to restrict the users that can sign-in to several organizations
-                // Set the tenant value in the appsettings.json file to 'organizations', set
-                // ValidateIssuer, above to 'true', and add the issuers you want to accept to the
-                // options.TokenValidationParameters.ValidIssuers collection
-                openIdConnectOptions.TokenValidationParameters.ValidateIssuer = false;
-            });
+                    // If you want to restrict the users that can sign-in to several organizations
+                    // Set the tenant value in the appsettings.json file to 'organizations', set
+                    // ValidateIssuer, above to 'true', and add the issuers you want to accept to the
+                    // options.TokenValidationParameters.ValidIssuers collection
+                    openIdConnectOptions.TokenValidationParameters.ValidateIssuer = false;
+                });
 
             services.AddPiranhaEF<SQLiteDb>(options =>
                 options.UseSqlite("Filename=./piranha.mvcweb.db"));
@@ -137,6 +140,7 @@ namespace MvcWeb
             app.UseStaticFiles();
             app.UsePiranha();
             app.UseRouting();
+            app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UsePiranhaIdentity();
