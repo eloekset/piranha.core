@@ -19,6 +19,8 @@ using Piranha.AspNetCore.Identity.SQLite;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace MvcWeb
 {
@@ -51,7 +53,7 @@ namespace MvcWeb
             services.AddPiranhaApi();
 
             services.AddPiranhaAzureAD(
-                options => _configuration.Bind("AzureAD"),
+                options => _configuration.Bind("AzureAD", options),
                 openIdConnectOptions =>
                 {
                     openIdConnectOptions.Authority = openIdConnectOptions.Authority + "/v2.0/";
