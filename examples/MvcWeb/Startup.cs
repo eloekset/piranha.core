@@ -15,12 +15,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Piranha;
 using Piranha.Data.EF.SQLite;
-using Piranha.AspNetCore.Identity.SQLite;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.IdentityModel.Logging;
 
 namespace MvcWeb
 {
@@ -52,6 +52,7 @@ namespace MvcWeb
             services.AddPiranhaTinyMCE();
             services.AddPiranhaApi();
 
+            IdentityModelEventSource.ShowPII = true;
             services.AddPiranhaAzureAD(
                 options => _configuration.Bind("AzureAD", options),
                 openIdConnectOptions =>
@@ -78,8 +79,6 @@ namespace MvcWeb
                 });
 
             services.AddPiranhaEF<SQLiteDb>(options =>
-                options.UseSqlite("Filename=./piranha.mvcweb.db"));
-            services.AddPiranhaIdentityWithSeed<IdentitySQLiteDb>(options =>
                 options.UseSqlite("Filename=./piranha.mvcweb.db"));
 
             services.AddMemoryCache();
@@ -145,7 +144,6 @@ namespace MvcWeb
             app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UsePiranhaIdentity();
             app.UsePiranhaManager();
             app.UsePiranhaTinyMCE();
             app.UseEndpoints(endpoints =>
